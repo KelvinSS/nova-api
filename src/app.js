@@ -8,7 +8,7 @@ const livros = [
   { id: 2, titulo: "O Hobbit" },
 ];
 
-function buscaLivro(id) {
+function findBook(id) {
   return livros.findIndex((livro) => livro.id === Number(id));
 }
 
@@ -21,7 +21,7 @@ app.get("/livros", (req, res) => {
 });
 
 app.get("/livros/:id", (req, res) => {
-  const index = buscaLivro(req.params.id);
+  const index = findBook(req.params.id);
   if (index < 0) {
     res.status(404).send("Livro não encontrado");
   } else {
@@ -35,7 +35,7 @@ app.post("/livros", (req, res) => {
 });
 
 app.put("/livros/:id", (req, res) => {
-  const index = buscaLivro(req.params.id);
+  const index = findBook(req.params.id);
   if (index < 0) {
     res.status(404).send("Livro não encontrado");
   } else {
@@ -45,7 +45,7 @@ app.put("/livros/:id", (req, res) => {
 });
 
 app.delete("/livros/:id", (req, res) => {
-  const index = buscaLivro(req.params.id);
+  const index = findBook(req.params.id);
   if (index < 0) {
     res.status(404).send("Livro não encontrado");
   } else {
