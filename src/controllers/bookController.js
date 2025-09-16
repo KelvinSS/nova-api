@@ -4,8 +4,9 @@ import { Author, books } from "../models/index.js";
 class BookController {
   static async listBooks(req, res, next) {
     try {
-      const listBooks = await books.find().populate("author");
-      res.status(200).json(listBooks);
+      const searchBooks = books.find().populate("author");
+      req.result = searchBooks;
+      next();
     } catch (error) {
       next(error);
     }
@@ -72,12 +73,13 @@ class BookController {
       const search = await processSeach(req.query);
 
       if (search !== null) {
-        const bookFound = await books.find(search).populate("author");
+        const bookFound = books.find(search).populate("author");
+        req.result = bookFound;
 
         if (bookFound.length === 0) {
           next(new NotFound("Nenhum livro encontrado."));
         } else {
-          res.status(200).json(bookFound);
+          next();
         }
       } else {
         res.status(200).json([]);
@@ -100,7 +102,9 @@ async function processSeach(params) {
   if (maxPages) search.pages.$lte = maxPages;
 
   if (nameAuthor) {
-    const author = await Author.findOne({ name: nameAuthor });
+    const author = await Author.findOne({
+      name: { $regex: nameAuthor, $options: "i" },
+    });
 
     if (author !== null) {
       search.author = author._id;

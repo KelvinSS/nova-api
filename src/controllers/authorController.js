@@ -4,10 +4,11 @@ import { Author } from "../models/index.js";
 class AuthorController {
   static async listAuthors(req, res, next) {
     try {
-      const listAuthors = await Author.find();
+      const listAuthors = Author.find();
+      req.result = listAuthors;
 
       if (listAuthors !== null) {
-        res.status(200).json(listAuthors);
+        next();
       } else {
         next(new NotFound("Não há autores cadastrados"));
       }
