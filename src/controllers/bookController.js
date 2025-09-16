@@ -1,24 +1,20 @@
 import NotFound from "../error/NotFound.js";
-import { books } from "../models/index.js";
+import { Author, books } from "../models/index.js";
 
 class BookController {
   static async listBooks(req, res, next) {
     try {
-      const listBooks = await books.find().populate("author").exec();
+      const listBooks = await books.find().populate("author");
       res.status(200).json(listBooks);
     } catch (error) {
       next(error);
     }
   }
 
-  static async listBookForId(req, res, next) {
+  static async listBookById(req, res, next) {
     try {
       const id = req.params.id;
-      const bookFound = await books
-        .findById(id)
-        .populate("author", "name")
-        .exec();
-
+      const bookFound = await books.findById(id).populate("author");
       if (bookFound !== null) {
         res.status(200).json(bookFound);
       } else {
@@ -42,7 +38,9 @@ class BookController {
   static async updatedBook(req, res, next) {
     try {
       const id = req.params.id;
-      const bookFound = await books.findByIdAndUpdate(id, req.body);
+      const bookFound = await books.findByIdAndUpdate(id, req.body, {
+        new: true,
+      });
 
       if (bookFound !== null) {
         res.status(200).json({ message: "Livro atualizado com sucesso." });
@@ -69,20 +67,49 @@ class BookController {
     }
   }
 
-  static async listBookForPublisher(req, res, next) {
-    const publisher = req.query.publisher;
+  static async listBookByFilter(req, res, next) {
     try {
-      const booksByPublisher = await books.find({ publisher: publisher });
+      const search = await processSeach(req.query);
 
-      if (booksByPublisher.length === 0) {
-        next(new NotFound("Nenhum livro encontrado para essa editora."));
+      if (search !== null) {
+        const bookFound = await books.find(search).populate("author");
+
+        if (bookFound.length === 0) {
+          next(new NotFound("Nenhum livro encontrado."));
+        } else {
+          res.status(200).json(bookFound);
+        }
       } else {
-        res.status(200).json(booksByPublisher);
+        res.status(200).json([]);
       }
     } catch (error) {
       next(error);
     }
   }
+}
+
+async function processSeach(params) {
+  const { publisher, title, minPages, maxPages, nameAuthor } = params;
+
+  let search = {};
+  if (publisher) search.publisher = publisher;
+  if (title) search.title = { $regex: title, $options: "i" };
+
+  if (minPages || maxPages) search.pages = {};
+  if (minPages) search.pages.$gte = minPages;
+  if (maxPages) search.pages.$lte = maxPages;
+
+  if (nameAuthor) {
+    const author = await Author.findOne({ name: nameAuthor });
+
+    if (author !== null) {
+      search.author = author._id;
+    } else {
+      search = null;
+    }
+  }
+
+  return search;
 }
 
 export default BookController;

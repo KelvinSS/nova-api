@@ -4,8 +4,8 @@ import BookController from "../controllers/bookController.js";
 const routes = express.Router();
 
 routes.get("/livros", BookController.listBooks);
-routes.get("/livros/busca", BookController.listBookForPublisher);
-routes.get("/livros/:id", BookController.listBookForId);
+routes.get("/livros/busca", BookController.listBookByFilter);
+routes.get("/livros/:id", BookController.listBookById);
 
 routes.post("/livros", BookController.addBook);
 
