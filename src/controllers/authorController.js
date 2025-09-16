@@ -1,10 +1,10 @@
 import NotFound from "../error/NotFound.js";
-import { author } from "../models/Author.js";
+import { Author } from "../models/index.js";
 
 class AuthorController {
   static async listAuthors(req, res, next) {
     try {
-      const listAuthors = await author.find();
+      const listAuthors = await Author.find();
 
       if (listAuthors !== null) {
         res.status(200).json(listAuthors);
@@ -19,7 +19,7 @@ class AuthorController {
   static async listAuthorsForId(req, res, next) {
     try {
       const id = req.params.id;
-      const authorFound = await author.findById(id);
+      const authorFound = await Author.findById(id);
 
       if (authorFound !== null) {
         res.status(200).json(authorFound);
@@ -33,7 +33,7 @@ class AuthorController {
 
   static async addAuthor(req, res, next) {
     try {
-      const newAuthor = await author.create(req.body);
+      const newAuthor = await Author.create(req.body);
       res
         .status(201)
         .json({ message: "Autor cadastrado com sucesso", Author: newAuthor });
@@ -45,7 +45,7 @@ class AuthorController {
   static async updatedAuthor(req, res, next) {
     try {
       const id = req.params.id;
-      const authorUpdated = await author.findByIdAndUpdate(id, req.body);
+      const authorUpdated = await Author.findByIdAndUpdate(id, req.body);
 
       if (authorUpdated !== null) {
         res.status(200).json({ message: "Autor atualizado com sucesso." });
@@ -60,7 +60,7 @@ class AuthorController {
   static async deleteAuthor(req, res, next) {
     try {
       const id = req.params.id;
-      const authotForDeleted = await author.findByIdAndDelete(id);
+      const authotForDeleted = await Author.findByIdAndDelete(id);
 
       if (authotForDeleted !== null) {
         res.status(200).json({ message: "Autor removido com sucesso" });
